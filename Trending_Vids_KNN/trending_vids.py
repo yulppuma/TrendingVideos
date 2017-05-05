@@ -34,7 +34,7 @@ for i in range(len(col_date_test)):
         earliest_date_test = num
     if num > latest_date_test:
         latest_date_test = num
-#print(earliest_date_test)
-#print(latest_date_test)
+print(earliest_date_test)
+print(latest_date_test)
 trending_test_yrs = latest_date_test - (latest_date_test - earliest_date_test)*.25
 print(trending_test_yrs)
