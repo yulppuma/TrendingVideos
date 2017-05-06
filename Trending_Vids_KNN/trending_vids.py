@@ -28,6 +28,46 @@ def classifyVids(column, avg):
         else:
             isTrending[i] = 0
     return isTrending
+
+def calculateError(isTrending, X):
+    date=0
+    views=0
+    results=np.empty(len(isTrending))
+    #performs KNN on each data point
+    for i in range (len(X)):
+        views=X[i][1]
+        date=X[i][0]
+        test_nbrs = NearestNeighbors(n_neighbors=100, algorithm='ball_tree').fit(X)
+        distances, indices = test_nbrs.kneighbors([[date, views]])
+        results[i]=KNNClassify(isTrending, indices) #fills in array with results from knn for each point
+
+    numIncorrect=0
+    percentError=0.0
+    error=np.empty(len(isTrending))
+    for i in range(len(isTrending)):
+        if isTrending[i]==results[i]:
+            error[i]=0 #0 if no error
+        else:
+            error[i]=1
+    for i in range(len(error)):
+        if error[i]==1:#if error
+            numIncorrect+=1; #increment count of incorrect result
+    percentError=(numIncorrect/len(isTrending)) #calculate total error value of data set
+    return percentError
+
+def KNNClassify(isTrending, indices): #returns 1 if classifies with trending
+    output = 0
+    count = 0
+    index = 0
+    for i in range(100):
+        index=(indices[0][i])
+        count+=isTrending[index]
+    if count > 50: #if data point classifies with a majority of 1's
+        output = 1
+    else:#if data point classifies with a mojority of 0's
+        output=0
+    return output
+
 test_cols = ['user id', 'date_posted', 'recent_views', 'total_views']
 test = pd.read_csv('../data/test_trending (3).csv', sep=",", names=test_cols, encoding='latin-1')
 train_cols = ['user id', 'date_posted', 'recent_views', 'total_views']
@@ -53,12 +93,12 @@ print(avg_dates_train)
 X = np.array((test_dates, col_recent_test)).T
 test_nbrs = NearestNeighbors(n_neighbors=100, algorithm='ball_tree').fit(X)
 distances, indices = test_nbrs.kneighbors([[2092, 49999]])
-print (indices)
-#print (distances)
 
 Y = np.array((train_dates, col_recent_train)).T
 train_nbrs = NearestNeighbors(n_neighbors=100, algorithm='ball_tree').fit(Y)
 distances_train, indices_train = train_nbrs.kneighbors([[2092, 49999]])
-print(indices)
+
 isTrending = classifyVids(col_recent_test, avg_recent_test)
-print(isTrending)
+
+print(calculateError(isTrending, X))
+print(calculateError(isTrending, Y))
