@@ -4,7 +4,7 @@ from sklearn.neighbors import NearestNeighbors
 import math
 import os
 def getAverageRecent(column):
-    # Getting average of recent views from all 10000+ videos
+    # Getting average columns from all 10000+ videos
     test_recent_total = 0;
     for i in range(len(column)):
         test_recent_total += column[i]
@@ -12,7 +12,7 @@ def getAverageRecent(column):
     return test_recent_total
 
 def parseDates(column):
-    # Initializing earliest and latest posted video
+    # Change column format from mm/dd/yyyy to year(integer)
     for i in range(len(column)):
         str = column[i]
         index = column[i].find("/", 3)
@@ -21,6 +21,7 @@ def parseDates(column):
     return column
 
 def classifyVids(column, avg):
+    #Check to see if video is trending by comparing it to avg value
     isTrending = np.array(column)
     for i in range(len(isTrending)):
         if column[i] > avg:
@@ -81,6 +82,7 @@ col_date_train = np.array(train.date_posted)
 test_dates = parseDates(col_date_test)
 train_dates = parseDates(col_date_train)
 
+#Avg value of recent/dates test & train
 avg_recent_test = getAverageRecent(col_recent_test)
 print (avg_recent_test)
 avg_recent_train = getAverageRecent(col_recent_train)
@@ -90,6 +92,8 @@ print(avg_dates_test)
 avg_dates_train = getAverageRecent(train_dates)
 print(avg_dates_train)
 
+#Initializing the data set that will be used for KNN algorithm
+    #X = test data ; Y = train data
 X = np.array((test_dates, col_recent_test)).T
 test_nbrs = NearestNeighbors(n_neighbors=100, algorithm='ball_tree').fit(X)
 distances, indices = test_nbrs.kneighbors([[2092, 49999]])
