@@ -19,6 +19,15 @@ def parseDates(column):
         num = int(str[index + 1:])
         column[i] = num
     return column
+
+def classifyVids(column, avg):
+    isTrending = np.array(column)
+    for i in range(len(isTrending)):
+        if column[i] > avg:
+            isTrending[i] = 1
+        else:
+            isTrending[i] = 0
+    return isTrending
 test_cols = ['user id', 'date_posted', 'recent_views', 'total_views']
 test = pd.read_csv('../data/test_trending (3).csv', sep=",", names=test_cols, encoding='latin-1')
 train_cols = ['user id', 'date_posted', 'recent_views', 'total_views']
@@ -49,5 +58,7 @@ print (indices)
 
 Y = np.array((train_dates, col_recent_train)).T
 train_nbrs = NearestNeighbors(n_neighbors=100, algorithm='ball_tree').fit(Y)
-distances, indices = train_nbrs.kneighbors([[2092, 49999]])
+distances_train, indices_train = train_nbrs.kneighbors([[2092, 49999]])
 print(indices)
+isTrending = classifyVids(col_recent_test, avg_recent_test)
+print(isTrending)
